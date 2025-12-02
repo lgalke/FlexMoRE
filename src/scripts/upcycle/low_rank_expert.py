@@ -36,9 +36,10 @@ def parse_args() -> argparse.Namespace:
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
 
-    parser.add_argument("-m", "--model", required=True, help="Path to the FlexOLMo model")
     parser.add_argument(
-        "-t", "--target", type=str, default=None, help="Target path to save the low-ranked model"
+        "-m",
+        "--model",
+        required=True, help="Path to the FlexOLMo model in HF format"
     )
     parser.add_argument(
         "-r",
@@ -76,7 +77,6 @@ if __name__ == "__main__":
     args = parse_args()
 
     expert_path = args.model
-    target_path = args.target
     torch.set_num_threads(args.processes)
 
     # load the MoE model config
@@ -135,7 +135,7 @@ if __name__ == "__main__":
             else:
                 moe_state_dict[key] = expert_state_dict[key]
         # save the final_state_dict for the MoE in a format that the olmo_core trainer likes
-        save_path = f"{target_path}-r{rank}"
+        save_path = f"{args.model}-r{rank}"
         log.info(f"Saving model to {save_path}")
         save_state_dict(save_path, {"model": moe_state_dict}, save_overwrite=True)
 
